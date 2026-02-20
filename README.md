@@ -1,6 +1,11 @@
 # PHP Sentinel 🛡️
 
-Passive API Contract Monitoring for strictly typed PHP 8.3+. 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/malikad778/php-sentinel.svg)](https://packagist.org/packages/malikad778/php-sentinel)
+[![Tests](https://github.com/malikad778/php-sentinel/actions/workflows/tests.yml/badge.svg)](https://github.com/malikad778/php-sentinel/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![PHP Version Require](https://img.shields.io/packagist/php-v/malikad778/php-sentinel.svg)](https://packagist.org/packages/malikad778/php-sentinel)
+
+Passive API Contract Monitoring for strictly typed PHP 8.3+.  
 
 Sentinel silently monitors the JSON payloads returning from the third-party APIs you consume, automatically infers their structural JSON Schema, and detects when they change unexpectedly (drift). 
 

@@ -2,6 +2,18 @@
     "name": "php-sentinel/sentinel",
     "description": "Passive API contract monitor: detects when third-party APIs silently change.",
     "type": "library",
+    "keywords": [
+        "api",
+        "monitoring",
+        "schema",
+        "json-schema",
+        "drift-detection",
+        "rest",
+        "laravel",
+        "symfony",
+        "phpstan-level-8",
+        "psr-18"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.3",

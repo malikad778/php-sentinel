@@ -1,0 +1,14 @@
+{
+    "id": "pi_3MtwBwLkdIwHu7ix28a3tqPb",
+    "object": "payment_intent",
+    "amount": 2000,
+    "client_secret": "pi_3MtwBwLkdIwHu7ix28a3tqPb_secret_x9y8z7",
+    "currency": "usd",
+    "status": "requires_payment_method",
+    "last_payment_error": {
+        "code": "card_declined",
+        "decline_code": "insufficient_funds",
+        "message": "Your card has insufficient funds.",
+        "type": "card_error"
+    }
+}

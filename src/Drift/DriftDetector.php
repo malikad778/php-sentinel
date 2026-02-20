@@ -131,27 +131,23 @@ class DriftDetector
             $oldRequired = $old['required'] ?? [];
             $newRequired = $new['required'] ?? [];
 
-            $removedPaths = [];
-            foreach ($changes as $c) {
-                if ($c instanceof FieldRemoved) {
-                    $removedPaths[] = $c->getPath();
-                }
-            }
-
             foreach ($oldRequired as $reqField) {
                 $fieldPath = $path === '' ? $reqField : $path . '.' . $reqField;
 
-                // Only fire RequiredNowOptional when the field is completely absent from
-                // the new response properties — not when it is present but null.
+                // If it is still required, skip
                 if (in_array($reqField, $newRequired, true)) {
                     continue;
                 }
-                if (!array_key_exists($reqField, $newProps) && !in_array($fieldPath, $removedPaths, true)) {
-                    // Field is gone entirely from the response
-                    $changes[] = new RequiredNowOptional($fieldPath);
+
+                // If it is completely missing from the new response properties, 
+                // FieldRemoved already caught it above. Do not emit duplicate drift.
+                if (!array_key_exists($reqField, $newProps)) {
+                    continue;
                 }
-                // If field IS in newProps but not in newRequired, it simply changed
-                // nullability or optionality — NowNullable already fired for it above.
+
+                // It is present in properties, but no longer required => RequiredNowOptional
+                $changes[] = new RequiredNowOptional($fieldPath);
+                // If it ALSO changed to null, NowNullable fired separately above.
             }
 
             foreach ($newRequired as $reqField) {

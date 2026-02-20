@@ -1,0 +1,15 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Function expect not found.#'
+        - '#Function test not found.#'
+        - '#Function it not found.#'
+        - '#Call to an undefined method Sentinel\\Console\\SentinelApplication::add\(\)#'
+        - '#Function it not found.#'

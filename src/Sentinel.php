@@ -13,6 +13,8 @@ use Sentinel\Normalization\EndpointNormalizer;
 use Sentinel\Sampling\SampleAccumulator;
 use Sentinel\Schema\SchemaStoreInterface;
 use Sentinel\Store\FileSchemaStore;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Sentinel
 {
@@ -22,6 +24,7 @@ class Sentinel
     private float $additiveThreshold = 0.95;
     private bool $reharden = true;
     private ?EventDispatcherInterface $dispatcher = null;
+    private ?LoggerInterface $logger = null;
     private int $maxStoredSamples = 50;
 
     public static function create(): self
@@ -62,6 +65,12 @@ class Sentinel
     public function withDispatcher(EventDispatcherInterface $dispatcher): self
     {
         $this->dispatcher = $dispatcher;
+        return $this;
+    }
+
+    public function withLogger(LoggerInterface $logger): self
+    {
+        $this->logger = $logger;
         return $this;
     }
 
@@ -117,6 +126,11 @@ class Sentinel
         };
     }
 
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger ?? new NullLogger();
+    }
+
     /**
      * @param array<mixed> $payload
      */
@@ -130,7 +144,7 @@ class Sentinel
         $engine      = new InferenceEngine();
         $accumulator = new SampleAccumulator($this->getStore(), $engine, $this->sampleThreshold, 0.95, $this->getDispatcher());
         $detector    = new DriftDetector();
-        $reporter    = new DriftReporter($this->getDispatcher());
+        $reporter    = new DriftReporter($this->getDispatcher(), $this->getLogger());
 
         $endpointKey = $normalizer->normalize($method, $uri);
         $store       = $this->getStore();

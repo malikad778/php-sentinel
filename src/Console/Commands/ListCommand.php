@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sentinel\Console\Commands;
 
 use Sentinel\Store\FileSchemaStore;
+use Sentinel\Sentinel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,6 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ListCommand extends Command
 {
     protected static string $defaultName = 'list-schemas'; // Avoid conflict with built-in "list"
+
+    public function __construct(private readonly ?Sentinel $sentinel = null)
+    {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -26,7 +32,7 @@ class ListCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $dir = is_string($input->getOption('output')) ? $input->getOption('output') : '';
 
-        $store = new FileSchemaStore($dir);
+        $store = $this->sentinel ? $this->sentinel->getStore() : new FileSchemaStore($dir);
         $keys = $store->all();
 
         if (count($keys) === 0) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sentinel\Console\Commands;
 
 use Sentinel\Store\FileSchemaStore;
+use Sentinel\Sentinel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class InspectCommand extends Command
 {
     protected static string $defaultName = 'inspect';
+
+    public function __construct(private readonly ?Sentinel $sentinel = null)
+    {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -29,7 +35,7 @@ class InspectCommand extends Command
         $key = is_string($input->getArgument('endpointKey')) ? $input->getArgument('endpointKey') : '';
         $dir = is_string($input->getOption('output')) ? $input->getOption('output') : '';
 
-        $store = new FileSchemaStore($dir);
+        $store = $this->sentinel ? $this->sentinel->getStore() : new FileSchemaStore($dir);
         $schema = $store->get($key);
 
         if ($schema === null) {

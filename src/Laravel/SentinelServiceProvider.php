@@ -41,6 +41,7 @@ class SentinelServiceProvider extends ServiceProvider
                         return $event;
                     }
                 })
+                ->withLogger($app['log']->driver())
                 ->build();
         });
     }

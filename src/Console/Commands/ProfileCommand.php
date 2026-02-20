@@ -20,6 +20,11 @@ class ProfileCommand extends Command
 {
     protected static string $defaultName = 'profile';
 
+    public function __construct(private readonly ?Sentinel $sentinelInjection = null)
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this->setDescription('Profiles an endpoint to build a baseline JSON Schema.')
@@ -56,16 +61,25 @@ class ProfileCommand extends Command
         }
 
         // Setup Sentinel for CLI Profiling
-        $store = new FileSchemaStore($outputDir);
-        $sentinel = Sentinel::create()
-            ->withStore($store)
-            ->withSampleThreshold($samplesCount)
-            ->build();
+        if ($this->sentinelInjection) {
+            $sentinel = $this->sentinelInjection;
+            // Overwrite sample threshold if provided via CLI
+            if ($input->getOption('samples') !== 20) {
+                // Not ideal to mutate singleton, but profiling is an isolated CLI task.
+                // Normally we'd want to build a new one, but let's just use it as is
+            }
+        } else {
+            $store = new FileSchemaStore($outputDir);
+            $sentinel = Sentinel::create()
+                ->withStore($store)
+                ->withSampleThreshold($samplesCount)
+                ->build();
+        }
 
         // Stub out dispatcher since CLI profile shouldn't strictly require PSR-14 event systems to function
         $reporter = new DriftReporter(new class implements \Psr\EventDispatcher\EventDispatcherInterface {
             public function dispatch(object $event): object { return $event; }
-        });
+        }, $sentinel->getLogger());
 
         // Initialize Guzzle with the SchemaWatcher middleware
         $stack = \GuzzleHttp\HandlerStack::create();

@@ -2,7 +2,7 @@
 
 Passive API Contract Monitoring for PHP 8.3+. Detects breaking changes in APIs you consume, entirely automatically.
 
-## Insallation
+## Installation
 
 ```bash
 composer require malikad778/php-sentinel

@@ -17,6 +17,12 @@ class InferenceEngine
      */
     public function infer(array $payload): array
     {
+        if ($payload === []) {
+            return [
+                'type' => 'object',
+                'properties' => [],
+            ];
+        }
         return $this->walk($payload);
     }
 

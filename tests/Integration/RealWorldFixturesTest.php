@@ -96,5 +96,11 @@ it('correctly models optional last_payment_error on Stripe Payment Intents', fun
     $sentinel->process('GET', '/v1/payment_intents/pi_shared', 200, $success);
     
     $driftEvents = array_filter($dispatcher->events, fn($e) => $e instanceof SchemaDriftDetected);
+    if (count($driftEvents) > 0) {
+        $drift = array_values($driftEvents)[0]->drift;
+        foreach ($drift->changes as $change) {
+            echo "\nDRIFT IN TEST: " . get_class($change) . " -> " . $change->getPath() . "\n";
+        }
+    }
     expect($driftEvents)->toHaveCount(0); // No drift! The probabilistic model handled varying structures and nulls.
 });

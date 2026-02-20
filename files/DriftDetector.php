@@ -74,9 +74,7 @@ class DriftDetector
                 $propPath = $path === '' ? $key : $path . '.' . $key;
 
                 if (!array_key_exists($key, $newProps)) {
-                    if (in_array($key, $old['required'] ?? [], true)) {
-                        $changes[] = new FieldRemoved($propPath, $oldPropDef['type'] ?? 'unknown');
-                    }
+                    $changes[] = new FieldRemoved($propPath, $oldPropDef['type'] ?? 'unknown');
                     continue;
                 }
 
@@ -92,9 +90,6 @@ class DriftDetector
                     && ($newTypeProp === 'null' || (is_array($newTypeProp) && in_array('null', $newTypeProp, true)));
 
                 if ($isNowNull) {
-                    if (($oldPropDef['nullable'] ?? false) === true) {
-                        continue;
-                    }
                     $changes[] = new NowNullable($propPath);
                     // Skip recursive diff — NowNullable already describes this change.
                     // A recursive call would fire a redundant TypeChanged for the same field.

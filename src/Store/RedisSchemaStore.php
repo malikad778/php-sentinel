@@ -18,7 +18,7 @@ class RedisSchemaStore implements SchemaStoreInterface
 
     public function has(string $key): bool
     {
-        return (bool) clone $this->redisClient->exists($this->getSchemaKey($key));
+        return (bool) $this->redisClient->exists($this->getSchemaKey($key));
     }
 
     public function get(string $key): ?StoredSchema
@@ -73,6 +73,11 @@ class RedisSchemaStore implements SchemaStoreInterface
         }
         
         return $endpointKeys;
+    }
+
+    public function clearSamples(string $key): void
+    {
+        $this->redisClient->del($this->getSamplesKey($key));
     }
 
     private function getSchemaKey(string $key): string

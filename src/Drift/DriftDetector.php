@@ -8,6 +8,11 @@ use Sentinel\Drift\Changes\FieldAdded;
 use Sentinel\Drift\Changes\FieldRemoved;
 use Sentinel\Drift\Changes\FormatChanged;
 use Sentinel\Drift\Changes\TypeChanged;
+use Sentinel\Drift\Changes\NowNullable;
+use Sentinel\Drift\Changes\RequiredNowOptional;
+use Sentinel\Drift\Changes\OptionalNowRequired;
+use Sentinel\Drift\Changes\EnumValueAdded;
+use Sentinel\Drift\Changes\EnumValueRemoved;
 use Sentinel\Schema\StoredSchema;
 
 class DriftDetector
@@ -73,6 +78,32 @@ class DriftDetector
                     continue;
                 }
 
+                // --- NowNullable ---
+                // Old schema had non-null type, new inferred schema has ['string','null'] or type=null
+                $oldTypeProp = $oldPropDef['type'] ?? '';
+                $newTypeProp = $newProps[$key]['type'] ?? '';
+                
+                if (!is_array($oldTypeProp) && $oldTypeProp !== 'null') {
+                    if ($newTypeProp === 'null' || (is_array($newTypeProp) && in_array('null', $newTypeProp))) {
+                        $changes[] = new NowNullable($propPath);
+                    }
+                }
+
+                // --- EnumValueAdded / EnumValueRemoved ---
+                if (isset($oldPropDef['enum']) && isset($newProps[$key]['enum'])) {
+                    $oldEnum = $oldPropDef['enum'];
+                    $newEnum = $newProps[$key]['enum'];
+
+                    if (is_array($oldEnum) && is_array($newEnum)) {
+                        foreach (array_diff($oldEnum, $newEnum) as $removed) {
+                            $changes[] = new EnumValueRemoved($propPath, (string) $removed);
+                        }
+                        foreach (array_diff($newEnum, $oldEnum) as $added) {
+                            $changes[] = new EnumValueAdded($propPath, (string) $added);
+                        }
+                    }
+                }
+
                 $changes = array_merge($changes, $this->diff($oldPropDef, $newProps[$key], $propPath));
             }
 
@@ -81,6 +112,25 @@ class DriftDetector
                 
                 if (!isset($oldProps[$key])) {
                     $changes[] = new FieldAdded($propPath, $newPropDef['type'] ?? 'unknown');
+                }
+            }
+
+            // --- RequiredNowOptional / OptionalNowRequired ---
+            // Compare the 'required' arrays at the object level
+            $oldRequired = $old['required'] ?? [];
+            $newRequired = $new['required'] ?? [];
+
+            foreach ($oldRequired as $reqField) {
+                if (!in_array($reqField, $newRequired)) {
+                    $fieldPath = $path === '' ? $reqField : $path . '.' . $reqField;
+                    $changes[] = new RequiredNowOptional($fieldPath);
+                }
+            }
+
+            foreach ($newRequired as $reqField) {
+                if (!in_array($reqField, $oldRequired)) {
+                    $fieldPath = $path === '' ? $reqField : $path . '.' . $reqField;
+                    $changes[] = new OptionalNowRequired($fieldPath);
                 }
             }
         } elseif ($oldType === 'array') {

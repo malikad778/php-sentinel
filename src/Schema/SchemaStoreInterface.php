@@ -41,6 +41,11 @@ interface SchemaStoreInterface
     public function archive(string $key, StoredSchema $schema): void;
 
     /**
+     * Clear all collected samples for the given key.
+     */
+    public function clearSamples(string $key): void;
+
+    /**
      * Returns an array of all tracked endpoint keys.
      *
      * @return array<int, string>

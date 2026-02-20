@@ -117,7 +117,7 @@ class FileSchemaStore implements SchemaStoreInterface
         return $keys;
     }
 
-    private function clearSamples(string $key): void
+    public function clearSamples(string $key): void
     {
         $path = $this->getSamplesPath($key);
         if (file_exists($path)) {

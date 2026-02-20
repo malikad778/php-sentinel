@@ -78,6 +78,12 @@ class PdoSchemaStore implements SchemaStoreInterface
         return new SampleCollection($samples);
     }
 
+    public function clearSamples(string $key): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM sentinel_samples WHERE endpoint_key = :key');
+        $stmt->execute(['key' => $key]);
+    }
+
     public function addSample(string $key, array $payload): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO sentinel_samples (endpoint_key, payload, created_at) VALUES (?, ?, ?)');

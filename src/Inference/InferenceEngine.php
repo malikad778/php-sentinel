@@ -67,10 +67,11 @@ class InferenceEngine
         $schema = ['type' => $type];
 
         if ($type === 'string') {
-            $format = FormatHintDetector::detect($value);
+            $format = FormatHintDetector::detect((string) $value);
             if ($format !== null) {
                 $schema['format'] = $format;
             }
+            $schema['enum'] = [(string) $value];
         }
 
         return $schema;

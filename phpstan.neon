@@ -5,11 +5,9 @@ parameters:
     level: 8
     paths:
         - src
-        - tests
+    excludePaths:
+        - src/Laravel
+        - src/Symfony
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
-        - '#Function expect not found.#'
-        - '#Function test not found.#'
-        - '#Function it not found.#'
         - '#Call to an undefined method Sentinel\\Console\\SentinelApplication::add\(\)#'
-        - '#Function it not found.#'

@@ -9,7 +9,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Sentinel\Drift\DriftDetector;
 use Sentinel\Drift\DriftReporter;
-use Sentinel\Events\SchemaDriftDetected; // Actually dispatched via Reporter, but listed
 use Sentinel\Inference\InferenceEngine;
 use Sentinel\Normalization\EndpointNormalizer;
 use Sentinel\Sampling\SampleAccumulator;
@@ -33,7 +32,9 @@ class SchemaWatcher implements ClientInterface
         $this->accumulator = new SampleAccumulator(
             $sentinel->getStore(),
             $this->inferenceEngine,
-            $sentinel->getSampleThreshold()
+            $sentinel->getSampleThreshold(),
+            $sentinel->getAdditiveThreshold(),
+            $sentinel->getDispatcher()
         );
     }
 

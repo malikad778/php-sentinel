@@ -74,9 +74,7 @@ class DriftDetector
                 $propPath = $path === '' ? $key : $path . '.' . $key;
 
                 if (!array_key_exists($key, $newProps)) {
-                    if (in_array($key, $old['required'] ?? [], true)) {
-                        $changes[] = new FieldRemoved($propPath, $oldPropDef['type'] ?? 'unknown');
-                    }
+                    $changes[] = new FieldRemoved($propPath, $oldPropDef['type'] ?? 'unknown');
                     continue;
                 }
 
@@ -133,6 +131,13 @@ class DriftDetector
             $oldRequired = $old['required'] ?? [];
             $newRequired = $new['required'] ?? [];
 
+            $removedPaths = [];
+            foreach ($changes as $c) {
+                if ($c instanceof FieldRemoved) {
+                    $removedPaths[] = $c->getPath();
+                }
+            }
+
             foreach ($oldRequired as $reqField) {
                 $fieldPath = $path === '' ? $reqField : $path . '.' . $reqField;
 
@@ -141,7 +146,7 @@ class DriftDetector
                 if (in_array($reqField, $newRequired, true)) {
                     continue;
                 }
-                if (!array_key_exists($reqField, $newProps)) {
+                if (!array_key_exists($reqField, $newProps) && !in_array($fieldPath, $removedPaths, true)) {
                     // Field is gone entirely from the response
                     $changes[] = new RequiredNowOptional($fieldPath);
                 }

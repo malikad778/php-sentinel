@@ -44,7 +44,7 @@ it('detects TypeChanged as BREAKING', function () {
 });
 
 it('detects RequiredNowOptional as BREAKING', function () {
-    $old = makeStoredSchema(['type'=>'object','properties'=>['note'=>['type'=>'string']],'required'=>['note']]);
+    $old = makeStoredSchema(['type'=>'object','properties'=>[],'required'=>['note']]);
     $new = ['type'=>'object','properties'=>[],'required'=>[]];
     $drift = (new DriftDetector())->detect('GET /orders', $old, $new);
     $types = array_map(fn($c) => get_class($c), $drift->changes);

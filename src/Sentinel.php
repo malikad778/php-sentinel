@@ -27,6 +27,12 @@ class Sentinel
     private ?LoggerInterface $logger = null;
     private int $maxStoredSamples = 50;
 
+    private ?EndpointNormalizer $normalizer = null;
+    private ?InferenceEngine $engine = null;
+    private ?SampleAccumulator $accumulator = null;
+    private ?DriftDetector $detector = null;
+    private ?DriftReporter $reporter = null;
+
     public static function create(): self
     {
         return new self();
@@ -86,7 +92,12 @@ class Sentinel
             $this->store = new FileSchemaStore(sys_get_temp_dir() . '/sentinel');
         }
 
-        // Logic to construct necessary composite elements will go here
+        $this->normalizer  = new EndpointNormalizer();
+        $this->engine      = new InferenceEngine();
+        $this->accumulator = new SampleAccumulator($this->getStore(), $this->engine, $this->sampleThreshold, $this->additiveThreshold, $this->getDispatcher());
+        $this->detector    = new DriftDetector();
+        $this->reporter    = new DriftReporter($this->getDispatcher(), $this->getLogger());
+
         return $this;
     }
 
@@ -140,17 +151,15 @@ class Sentinel
             return;
         }
 
-        $normalizer  = new EndpointNormalizer();
-        $engine      = new InferenceEngine();
-        $accumulator = new SampleAccumulator($this->getStore(), $engine, $this->sampleThreshold, 0.95, $this->getDispatcher());
-        $detector    = new DriftDetector();
-        $reporter    = new DriftReporter($this->getDispatcher(), $this->getLogger());
+        if ($this->normalizer === null) {
+            throw new \RuntimeException('Sentinel not built. Call build() first.');
+        }
 
-        $endpointKey = $normalizer->normalize($method, $uri);
+        $endpointKey = $this->normalizer->normalize($method, $uri);
         $store       = $this->getStore();
 
         if (!$store->has($endpointKey)) {
-            $accumulator->accumulate($endpointKey, $payload);
+            $this->accumulator->accumulate($endpointKey, $payload);
             return;
         }
 
@@ -159,15 +168,15 @@ class Sentinel
             return;
         }
 
-        $inferred = $engine->infer($payload);
-        $drift    = $detector->detect($endpointKey, $hardened, $inferred);
+        $inferred = $this->engine->infer($payload);
+        $drift    = $this->detector->detect($endpointKey, $hardened, $inferred);
 
         if ($drift !== null) {
-            $reporter->report($drift);
+            $this->reporter->report($drift);
 
             if ($this->reharden) {
                 $store->archive($endpointKey, $hardened);
-                $accumulator->accumulate($endpointKey, $payload);
+                $this->accumulator->accumulate($endpointKey, $payload);
             }
         }
     }

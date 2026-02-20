@@ -27,6 +27,7 @@ class SentinelExtension extends Extension
         $definition->addMethodCall('withDriftSeverity', [
             is_callable([$severityClass, 'from']) ? $severityClass::from($config['drift_severity']) : constant($severityClass . '::' . $config['drift_severity']) // Fallback for some PHP versions handling enums in DI compilation
         ]);
+        $definition->addMethodCall('build', []);
 
         $container->setDefinition(Sentinel::class, $definition);
         $container->setAlias('sentinel', Sentinel::class);

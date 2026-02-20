@@ -1,5 +1,5 @@
 {
-    "name": "php-sentinel/sentinel",
+    "name": "malikad778/php-sentinel",
     "description": "Passive API contract monitor: detects when third-party APIs silently change.",
     "type": "library",
     "keywords": [

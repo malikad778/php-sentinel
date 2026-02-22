@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+} else {
+    // Packagist installed relative
+    require __DIR__ . '/../../../autoload.php';
+}
+
+use Sentinel\Console\SentinelApplication;
+
+$application = new SentinelApplication();
+$application->run();

@@ -1,0 +1,9 @@
+{
+    "id": "pi_3MtwBwLkdIwHu7ix28a3tqPa",
+    "object": "payment_intent",
+    "amount": 2000,
+    "client_secret": "pi_3MtwBwLkdIwHu7ix28a3tqPa_secret_a1b2c3",
+    "currency": "usd",
+    "status": "succeeded",
+    "last_payment_error": null
+}
